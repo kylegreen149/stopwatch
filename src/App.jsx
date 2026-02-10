@@ -3,6 +3,8 @@ import './App.css'
 
 function App() {
   const [elapsed, setElapsed] = useState(0)
+  const [isRunning, setIsRunning] = useState(false)
+  const [startTime, setStartTime] = useState(null)
 
   const formatTime = (ms) => {
     const totalSeconds = Math.floor(ms / 1000)
@@ -23,9 +25,35 @@ function App() {
     return `${pad(days)}:${pad(hours)}:${pad(minutes)}:${pad(seconds)}:${padMs(milliseconds)}`
   }
 
+  const start = () => {
+    setStartTime(Date.now() - elapsed)
+    setIsRunning(true)
+  }
+  
+  const pause = () => setIsRunning(false)
+  const reset = () => {
+    setIsRunning(false)
+    setElapsed(0)
+    setStartTime(null)
+  }
+
+  useEffect(() => {
+    if (!isRunning) return
+
+    const interval = setInterval(() => {
+      setElapsed(Date.now() - startTime)
+    }, 50)
+
+    return () => clearInterval(interval)
+    
+  }, [isRunning, startTime])
+
   return (
     <div>
       <h1>{formatTime(elapsed)}</h1>
+      <button onClick={start}>Start</button>
+      <button onClick={pause}>Pause</button>
+      <button onClick={reset}>Reset</button>
     </div>
   )
 }
